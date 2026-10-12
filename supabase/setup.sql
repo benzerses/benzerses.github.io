@@ -70,15 +70,29 @@ $$;
 -- 7) Oturum meta verisini SUNUCU tarafında doldur (istemci kurcalayamaz)
 create or replace function public.tg_session_meta() returns trigger
 language plpgsql security definer set search_path = public as $$
-declare h jsonb := '{}'::jsonb; ips text;
+declare
+  h   jsonb := '{}'::jsonb;
+  ips text;
 begin
-  begin h := current_setting('request.headers', true)::jsonb; exception when others then h := '{}'::jsonb; end;
+  begin
+    h := current_setting('request.headers', true)::jsonb;
+  exception when others then
+    h := '{}'::jsonb;
+  end;
+
   if new.ip is null then
-    ips := split_part(coalesce(h->>'x-forwarded-for',''), ',', 1);
-    if ips <> '' then begin new.ip := ips::inet; exception when others then null; end if; end if;
+    ips := split_part(coalesce(h->>'x-forwarded-for', ''), ',', 1);
+    if ips <> '' then
+      begin
+        new.ip := ips::inet;
+      exception when others then
+        new.ip := null;      -- bozuk/eksik IP sessizce atlanır
+      end;
+    end if;
   end if;
-  if new.user_agent is null then new.user_agent := left(coalesce(h->>'user-agent',''), 400); end if;
-  if new.referrer  is null then new.referrer  := left(coalesce(h->>'referer',''), 300); end if;
+
+  if new.user_agent is null then new.user_agent := left(coalesce(h->>'user-agent', ''), 400); end if;
+  if new.referrer   is null then new.referrer   := left(coalesce(h->>'referer', ''), 300);    end if;
   return new;
 end $$;
 drop trigger if exists session_meta on public.sessions_log;
