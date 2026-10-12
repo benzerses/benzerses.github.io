@@ -50,6 +50,19 @@ bash deploy/deploy-github.sh                           # GITHUB_TOKEN envi ile
 > **anon anahtar gizli değildir** — tarayıcıda görünmesi normaldir; asıl koruma veritabanındaki
 > RLS politikalarıdır (Adım 2'de kuruldu). **service_role anahtarını ASLA siteye koyma.**
 
+## Sorun giderme
+
+| Hata | Anlamı ve çözümü |
+|---|---|
+| `FATAL: 28P01 password authentication failed for user "postgres"` | **Bizim SQL'den değil** — Supabase'in yeni projede görülen geçici bağlantı hatası. Veritabanı henüz tam hazır değil. **1-2 dakika bekleyip sekmeyi yenile, tekrar RUN'a bas.** Genelde ikinci denemede geçer. Sürerse proje durumunun "Active/Healthy" olduğunu kontrol et. |
+| `ERROR: permission denied for table ...` | SQL'i **yanlış projede** çalıştırıyorsun ya da `postgres` yetkisiyle değil. SQL Editor'de çalıştırdığından emin ol. |
+| `NOTICE: ... does not exist, skipping` | **Normaldir.** Dosya tekrar çalıştırılabilir (idempotent); "zaten var olanı atladım" demek. |
+| `ERROR: Must be owner of ...` | Aynı: doğru projede, SQL Editor üzerinden çalıştır. |
+
+> Not: Bu kurulum dosyası gerçek PostgreSQL 17 üzerinde baştan sona test edilmiştir:
+> kayıt→profil tetikleyicisi, oturum meta kaydı, RLS izolasyonu (kullanıcı yalnızca kendi verisini görür),
+> yetki yükseltme denemeleri (reddedilir), kullanıcı adı doğrulama ve yönetici işlemleri doğrulanmıştır.
+
 ## Yönetici (admin) yapmak
 
 Kayıt olduktan sonra SQL Editor'de kendini yönetici işaretle (e-postanı yaz):
