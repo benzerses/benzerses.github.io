@@ -29,7 +29,11 @@ Tek dosyalık (`index.html`), sunucusuz bir müzik keşif motoru. Kurulum yok, d
 
 Herhangi bir statik barındırıcıda çalışır (yönlendirme hash tabanlı olduğu için sunucu ayarı gerekmez):
 
-- **GitHub Pages:** `deploy/deploy-github.sh <TOKEN> benzerses` → `https://kullanıcıadı.github.io/benzerses/`
+- **Canlı site (GitHub Pages):** https://benzerses.github.io/ — güncellemek için:
+  ```bash
+  python3 tools/csp-hash.py                        # JS değiştiyse
+  GITHUB_TOKEN=xxx bash deploy/deploy-public.sh    # canlıya gönder
+  ```
 - **Netlify Drop:** `index.html` dosyasını <https://app.netlify.com/drop> sayfasına sürükle-bırak
 - **Vercel / Cloudflare Pages:** repo bağla, çerçeve: "Other", çıktı klasörü: kök
 - **Kendi hostingin:** `index.html` dosyasını FTP ile `public_html` içine at — hepsi bu
@@ -58,6 +62,7 @@ python3 -m http.server 4173     # http://localhost:4173
 | Dağıtım | Yükleme öncesi CSP-hash doğrulaması, yayın sonrası SHA-256 bütünlük kontrolü, gizli anahtar taraması + push koruması, Pages HTTPS zorlaması (`deploy/deploy-github.sh`) |
 | Bilinen sınır 1 | Deezer CORS başlığı göndermediği için **JSONP** kullanılır (api.deezer.com'a güven); sunucu aracısı kurulursa kaldırılabilir |
 | Bilinen sınır 2 | GitHub Pages özel HTTP başlığı ('X-Frame-Options', 'Permissions-Policy', CSP `frame-ancestors`) desteklemez; Cloudflare/Netlify katmanı eklenirse açılabilir |
+| Hesap sistemi | Kayıt/giriş (Supabase Auth + bcrypt), KVKK onayı, bulut favori eşitleme, aydınlatma metni, yönetim paneli (`#/admin`). Kurulum: **KURULUM.md** |
 
 > **Geliştirici notu:** `index.html` içindeki JavaScript'i değiştirirsen CSP hash'i güncellenmeli:
 > `python3 tools/csp-hash.py` (kontrol: `python3 tools/csp-hash.py --check`). Deploy betiği hash uyuşmazsa yüklemeyi reddeder.
